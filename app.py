@@ -1,10 +1,15 @@
 from flask import Flask 
 from routes import users, courses
-app = Flask(__name__)
+from auth0 import auth0, oauth
 
-app.register_blueprint(users.blueprint)
-app.register_blueprint(courses.blueprint)
+app = Flask(__name__)
+app.config.from_pyfile('config.py')
+
+oauth.init_app(app)
+
+app.register_blueprint(users.users_bp)
+app.register_blueprint(courses.courses_bp)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8080)
