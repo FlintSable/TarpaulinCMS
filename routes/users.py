@@ -2,7 +2,12 @@ import logging
 import io
 from flask import Blueprint, request, jsonify, send_file
 from auth0 import auth0_login, jwt_required
-from models import get_user, get_all_users, get_user_by_sub, get_user_by_id, check_user_avatar, save_avatar_to_storage, get_avatar_from_storage, get_all_entities, delete_avatar_from_storage
+from models import (
+    get_user, get_all_users, get_user_by_sub, get_user_by_id, get_enrolled_courses_by_student, 
+    check_user_avatar, save_avatar_to_storage, get_avatar_from_storage, get_all_entities, 
+    delete_avatar_from_storage
+)
+
 from config import CLIENT_ID, CLIENT_SECRET, CLOUD_BUCKET
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
@@ -51,7 +56,7 @@ def get_user_details(user_id):
         response["avatar_url"] = avatar_url
 
     if user['role'] in ['instructor', 'student']:
-        courses = user.get('courses', [])
+        courses = get_enrolled_courses_by_student(user_id)
         response['courses'] = [f"{request.url_root}courses/{course_id}" for course_id in courses]
 
     return jsonify(response), 200

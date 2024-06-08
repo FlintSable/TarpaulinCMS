@@ -1,0 +1,285 @@
+{
+  "info": {
+    "_postman_id": "a5f55e6d-3d8e-4780-8cac-e96d40e6609f",
+    "name": "a 10 Update Course",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "2047375"
+  },
+  "item": [
+    {
+      "name": "Update Course",
+      "item": [
+        {
+          "name": "Update course with valid data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let points = 0;",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    points += 1;",
+                  "});",
+                  "pm.test(\"Response content is valid\", function () {",
+                  "    const respJSON = pm.response.json();",
+                  "    pm.expect(respJSON.subject).to.eq(\"CS\");",
+                  "    pm.expect(respJSON.number).to.eq(493);",
+                  "    pm.expect(respJSON.title).to.eq(\"Cloud Application Development\");",
+                  "    pm.expect(respJSON.term).to.eq(\"summer-24\");",
+                  "    pm.expect(respJSON.instructor_id).to.eq(pm.environment.get('instructor2_id'));",
+                  "    points += 1;",
+                  "    pm.environment.set('course1_id', respJSON.id);",
+                  "});",
+                  "pm.test(\"Content type is application/json\", function() {",
+                  "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "    points += 1;",
+                  "});",
+                  "console.log('Total points for Update course valid test = ' + points);",
+                  "pm.environment.set(\"points_update_course\", points);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin1_jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Cloud Application Development\", \"number\": 493, \"subject\": \"CS\", \"term\": \"summer-24\", \"instructor_id\": {{instructor2_id}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{app_url}}/courses/{{course1_id}}",
+              "host": ["{{app_url}}"],
+              "path": ["courses", "{{course1_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update course with invalid instructor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let points = 0;",
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    points += 1;",
+                  "});",
+                  "pm.test(\"Error message is valid\", function () {",
+                  "    pm.expect(pm.response.json().Error).to.eq(\"The request body is invalid\");",
+                  "    points += 1;",
+                  "});",
+                  "console.log('Total points for Update course invalid instructor test = ' + points);",
+                  "pm.environment.set(\"points_update_course_invalid_instructor\", points);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin1_jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"instructor_id\": {{student1_id}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{app_url}}/courses/{{course1_id}}",
+              "host": ["{{app_url}}"],
+              "path": ["courses", "{{course1_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update course unauthorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let points = 0;",
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "    points += 1;",
+                  "});",
+                  "pm.test(\"Error message is valid\", function () {",
+                  "    pm.expect(pm.response.json().Error).to.eq(\"Unauthorized\");",
+                  "    points += 1;",
+                  "});",
+                  "console.log('Total points for Update course unauthorized test = ' + points);",
+                  "pm.environment.set(\"points_update_course_unauthorized\", points);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{invalid_jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"instructor_id\": {{instructor1_id}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{app_url}}/courses/{{course1_id}}",
+              "host": ["{{app_url}}"],
+              "path": ["courses", "{{course1_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get course and store course1_id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let points = 0;",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    points += 1;",
+                  "});",
+                  "pm.test(\"Response contains course data\", function () {",
+                  "    const respJSON = pm.response.json();",
+                  "    pm.expect(respJSON).to.have.property('id');",
+                  "    pm.environment.set(\"course1_id\", respJSON.id);",
+                  "    points += 1;",
+                  "});",
+                  "console.log('Total points for Get course and store course1_id = ' + points);",
+                  "pm.environment.set(\"points_get_course\", points);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin1_jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{app_url}}/courses/{{invalid_course_id}}",
+              "host": ["{{app_url}}"],
+              "path": ["courses", "{{invalid_course_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update course and store course1_id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let points = 0;",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    points += 1;",
+                  "});",
+                  "pm.test(\"Response contains course data\", function () {",
+                  "    const respJSON = pm.response.json();",
+                  "    pm.expect(respJSON).to.have.property('id');",
+                  "    pm.environment.set(\"course1_id\", respJSON.id);",
+                  "    points += 1;",
+                  "});",
+                  "console.log('Total points for Update course and store course1_id = ' + points);",
+                  "pm.environment.set(\"points_update_and_store_course\", points);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin1_jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"term\": \"fall-24\", \"instructor_id\": {{instructor1_id}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{app_url}}/courses/{{course1_id}}",
+              "host": ["{{app_url}}"],
+              "path": ["courses", "{{course1_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

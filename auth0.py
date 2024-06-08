@@ -85,59 +85,6 @@ def extract_token_from_header():
 
     return auth_header_parts[1]
 
-# def jwt_required(role=None):
-#     def decorator(func):
-#         @wraps(func)
-#         def wrapper(*args, **kwargs):
-#             token = extract_token_from_header()
-#             if not token:
-#                 raise AuthError({"code": "no auth header", "description": "Authorization header is missing"}, 401)
-
-#             payload = verify_jwt(token)
-#             if not payload:
-#                 raise AuthError({"code": "invalid_token", "description": "Invalid token"}, 401)
-
-#             if role:
-#                 user = get_user(payload['sub'])
-#                 if not user or user['role'] != role:
-#                     raise AuthError({"code": "insufficient_permissions", "description": "Insufficient permissions"}, 403)
-
-#             request.current_user = payload
-#             return func(*args, **kwargs)
-
-#         return wrapper
-
-#     return decorator
-
-# def jwt_required(role=None):
-#     def decorator(func):
-#         @wraps(func)
-#         def wrapper(*args, **kwargs):
-#             token = extract_token_from_header()
-#             if not token:
-#                 raise AuthError({"code": "no auth header", "description": "Authorization header is missing"}, 401)
-
-#             payload = verify_jwt(token)
-#             if not payload:
-#                 raise AuthError({"code": "invalid_token", "description": "Invalid token"}, 401)
-
-#             if role:
-#                 user_id = payload['sub']
-#                 logging.info(f"User ID (sub) from JWT: {user_id}")
-#                 user = get_user_by_sub(user_id)
-#                 logging.info(f"User object from Datastore: {user}")
-#                 if not user:
-#                     raise AuthError({"code": "user_not_found", "description": "User not found"}, 404)
-#                 logger.info(f"User role: {user['role']}, Required role: {role}")
-#                 if user['role'] != role:
-#                     raise AuthError({"code": "insufficient_permissions", "description": "Insufficient permissions"}, 403)
-
-#             request.current_user = payload
-#             return func(*args, **kwargs)
-
-#         return wrapper
-
-#     return decorator
 
 def jwt_required(role=None):
     def decorator(func):

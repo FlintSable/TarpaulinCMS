@@ -1,10 +1,3 @@
-# CLIENT_ID = 'M7E3nhzw81aI6hpzd3OgOqU5C3MA1vti'
-# CLIENT_SECRET = '1dDYBFH0BJ0f1IpA_nLjbwuaar_nXG2GX4FfhiKlcUxkP3189HkTYii70vtkxt3v'
-# DOMAIN = 'dev-jwt-493spring24.us.auth0.com'
-
-# DATASTORE_PROJECT_ID = 'tarpaulincms-api'
-# CLOUD_BUCKET = 'bucket-today-1'
-
 import os
 from dotenv import load_dotenv
 

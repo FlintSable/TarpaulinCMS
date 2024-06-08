@@ -22,15 +22,21 @@ def get_all_users():
     return list(query.fetch())
 
 def get_user_by_sub(sub):
-    logging.info(f"Looking for user with sub: {sub}")
     query = client.query(kind='users')
     query.add_filter('sub', '=', sub)
     users = list(query.fetch())
-    logging.info(f"Users found for sub '{sub}': {users}")
     if users:
         return users[0]
     else:
         return None
+
+def get_user_role(user_id):
+    key = client.key('users', user_id)
+    user = client.get(key)
+    logging.info(f"get_user_role: Retrieved user {user} for user_id {user_id}")
+    if user:
+        return user.get('role')
+    return None
 
 def get_all_entities(kind):
     query = client.query(kind=kind)
@@ -42,7 +48,6 @@ def get_user_by_id(user_id):
     key = client.key('users', user_id)
     user = client.get(key)
     return user
-
 
 def save_avatar_to_storage(file, user_id):
     blob_name = f'avatars/{user_id}.png'
@@ -131,10 +136,10 @@ def get_all_courses(offset=0, limit=3, base_url=""):
             "self": f"{base_url}/{result.key.id}"
         }
         courses.append(course)
-    
+
     next_offset = offset + limit
     next_url = f"{base_url}?offset={next_offset}&limit={limit}" if len(results) == limit else None
-    
+
     response = {
         "courses": courses,
         "next": next_url
@@ -163,35 +168,38 @@ def update_course(course_id, data):
         if 'term' in data:
             course['term'] = data['term']
         if 'instructor_id' in data:
-            instructor = get_user(data['instructor_id'])
-            if instructor and instructor['role'] == 'instructor':
-                course['instructor_id'] = data['instructor_id']
-            else:
-                return None, "Invalid instructor ID"
+            instructor_role = get_user_role(data['instructor_id'])
+            logging.info(f"update_course: Retrieved instructor role {instructor_role} for instructor_id {data['instructor_id']}")
+            if instructor_role != 'instructor':
+                logging.error(f"update_course: Invalid instructor_id {data['instructor_id']}")
+                return None, "The request body is invalid"
+            course['instructor_id'] = data['instructor_id']
         client.put(course)
-        return {
+        updated_course = {
             "id": course.key.id,
             "subject": course['subject'],
             "number": course['number'],
             "title": course['title'],
             "instructor_id": course['instructor_id'],
-            "term": course['term'],
-            "self": request.base_url
-        }, None
-    return None, None
+            "term": course['term']
+        }
+        logging.info(f"update_course: Successfully updated course {updated_course}")
+        return updated_course, None
+    logging.error(f"update_course: Course not found for course_id {course_id}")
+    return None, "Course not found"
+
 
 def delete_course(course_id):
     key = client.key('Course', course_id)
     course = client.get(key)
     if course:
         # Delete enrollment data for the course
-        query = client.query(kind='Enrollment')
+        query = client.query(kind='enrollment')
         query.add_filter('course_id', '=', course_id)
         enrollments = list(query.fetch())
         for enrollment in enrollments:
             client.delete(enrollment.key)
         
-        # Delete the course itself
         client.delete(key)
     else:
         raise ValueError("No course with this course_id exists")
@@ -210,7 +218,7 @@ def enroll_student(course_id, student_ids_to_add, student_ids_to_remove):
             raise ValueError("Invalid student ID")
         
         # Check if the student is already enrolled
-        enrollment_key = client.key('Enrollment', f"{course_id}_{student_id}")
+        enrollment_key = client.key('enrollment', f"{course_id}_{student_id}")
         enrollment = client.get(enrollment_key)
         if not enrollment:
             # Create a new enrollment
@@ -221,23 +229,30 @@ def enroll_student(course_id, student_ids_to_add, student_ids_to_remove):
     
     for student_id in student_ids_to_remove:
         # Check if the enrollment exists
-        enrollment_key = client.key('Enrollment', f"{course_id}_{student_id}")
+        enrollment_key = client.key('enrollment', f"{course_id}_{student_id}")
         enrollment = client.get(enrollment_key)
         if enrollment:
             # Delete the enrollment
             client.delete(enrollment_key)
 
 def get_enrolled_students(course_id):
-    query = client.query(kind='Enrollment')
+    query = client.query(kind='enrollment')
     query.add_filter('course_id', '=', course_id)
     enrollments = list(query.fetch())
     student_ids = [enrollment['student_id'] for enrollment in enrollments]
     return student_ids
 
 def disenroll_student(course_id, student_id):
-    query = client.query(kind='Enrollment')
+    query = client.query(kind='enrollment')
     query.add_filter('course_id', '=', course_id)
     query.add_filter('student_id', '=', student_id)
     enrollments = list(query.fetch())
     for enrollment in enrollments:
         client.delete(enrollment.key)
+
+def get_enrolled_courses_by_student(student_id):
+    query = client.query(kind='enrollment')
+    query.add_filter('student_id', '=', student_id)
+    enrollments = list(query.fetch())
+    course_ids = [enrollment['course_id'] for enrollment in enrollments]    
+    return course_ids

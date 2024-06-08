@@ -1,6 +1,13 @@
-from flask import Blueprint, request, jsonify
+import logging
+from flask import Blueprint, request, jsonify, current_app
 from auth0 import jwt_required
-from models import get_course, get_all_courses, create_course, get_user_by_id, update_course, delete_course, get_enrolled_students, enroll_student, disenroll_student
+# from models import get_course, get_all_courses, create_course, get_user_by_id, get_user_by_sub, get_user_role, update_course, delete_course, get_enrolled_students, enroll_student, disenroll_student
+from models import (
+    get_course, get_all_courses, create_course, get_user_by_id,
+    get_user_by_sub, get_user_role, update_course, delete_course,
+    get_enrolled_students, enroll_student, disenroll_student
+)
+logger = logging.getLogger(__name__)
 
 courses_bp = Blueprint('courses', __name__, url_prefix='/courses')
 
@@ -30,7 +37,6 @@ def get_courses():
     base_url = request.base_url
 
     courses = get_all_courses(offset, limit, base_url)
-    # return jsonify(courses), 200
     return jsonify(courses), 200
 
 @courses_bp.route('/<int:course_id>', methods=['GET'])
@@ -55,14 +61,27 @@ def get_course_details(course_id):
 def update_course_details(course_id):
     content = request.get_json()
     if not content:
+        current_app.logger.info("Request body is invalid")
         return jsonify({"Error": "The request body is invalid"}), 400
 
+    if 'instructor_id' in content:
+        instructor_role = get_user_role(content['instructor_id'])
+        current_app.logger.info(f"Retrieved instructor role {instructor_role} for instructor_id {content['instructor_id']}")
+        if instructor_role != 'instructor':
+            current_app.logger.info(f"instructor_id {content['instructor_id']} is not a valid instructor")
+            return jsonify({"Error": "The request body is invalid"}), 400
+
     try:
-        course = update_course(course_id, content)
+        course, error = update_course(course_id, content)
+        if error:
+            current_app.logger.info(f"Error updating course: {error}")
+            return jsonify({"Error": error}), 400
         if not course:
+            current_app.logger.info(f"Course not found for course_id {course_id}")
             return jsonify({"Error": "Not found"}), 404
         return jsonify(course), 200
     except ValueError as e:
+        current_app.logger.error(f"Exception occurred: {str(e)}")
         return jsonify({"Error": str(e)}), 400
 
 @courses_bp.route('/<int:course_id>', methods=['DELETE'])
@@ -74,23 +93,6 @@ def delete_course_route(course_id):
     except ValueError:
         return jsonify({"Error": "No course with this course_id exists"}), 403
 
-@courses_bp.route('/<int:course_id>', methods=['PATCH'])
-@jwt_required()
-def update_course(course_id):
-    content = request.get_json()
-
-    user_id = request.current_user['sub']
-    if request.current_user['role'] != 'admin':
-        return jsonify({"Error": "You don't have permission on this resource"}), 403
-
-    course, error = update_course(course_id, content)
-    if not course:
-        if error:
-            return jsonify({"Error": error}), 400
-        else:
-            return jsonify({"Error": "Not found"}), 404
-
-    return jsonify(course), 200
 
 @courses_bp.route('/<int:course_id>/students', methods=['GET'])
 @jwt_required()
@@ -118,7 +120,15 @@ def update_enrollment(course_id):
         return jsonify({"Error": "Not found"}), 404
 
     user_id = request.current_user['sub']
-    if request.current_user['role'] != 'admin' and course['instructor_id'] != user_id:
+    user = get_user_by_sub(user_id)
+    if not user:
+        return jsonify({"Error": "User not found"}), 404
+
+    user_role = user.get('role')
+    if not user_role:
+        return jsonify({"Error": "User role not found"}), 400
+
+    if user_role != 'admin' and course['instructor_id'] != user_id:
         return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     student_ids_to_add = content['add']

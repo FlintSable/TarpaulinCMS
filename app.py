@@ -1,10 +1,11 @@
 from flask import Flask 
 from routes import users, courses, decode
 from auth0 import auth0, oauth
-
+import logging
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
+
 
 oauth.init_app(app)
 
