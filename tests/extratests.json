@@ -1,0 +1,398 @@
+{
+    "info": {
+      "_postman_id": "f44b7139-8ab8-4537-9ade-3dfb4942c4f4",
+      "name": "extratests",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "10. update a course (4 pts)",
+        "item": [
+          {
+            "name": "1. update course 1 200 (1 pt)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "let points = 0;",
+                    "",
+                    "pm.test(\"status code is 200 (0.25 pts)\", function () {",
+                    "    pm.response.to.have.status(200);",
+                    "    points += 0.25",
+                    "});",
+                    "",
+                    "pm.test(\"content is valid (0.5 pts)\", function () {",
+                    "    const respJSON = pm.response.json();",
+                    "    pm.expect(pm.response.json()[\"subject\"]).to.eq(\"CS\");",
+                    "    pm.expect(pm.response.json()[\"number\"]).to.eq(493);",
+                    "    pm.expect(pm.response.json()[\"title\"]).to.eq(\"Cloud Application Development\");",
+                    "    pm.expect(pm.response.json()[\"term\"]).to.eq(\"summer-24\");",
+                    "    pm.expect(pm.response.json()[\"instructor_id\"]).to.eq(pm.environment.get('instructor2_id'));",
+                    "    points += 0.5",
+                    "});",
+                    "",
+                    "pm.test(\"The response content type is application.json (0.25 pts)\", function(){",
+                    "    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');",
+                    "    points += 0.25",
+                    "});",
+                    "",
+                    "console.log('******* Update a course Test 1 points = ' + points);",
+                    "console.log('******* Update a course Tests current points = ' + points);",
+                    "pm.environment.set(\"points_course_update\", points);"
+                  ],
+                  "type": "text/javascript",
+                  "packages": {}
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{admin1_jwt}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "PATCH",
+              "header": [],
+              "body": {
+                "mode": "raw",
+                "raw": "{\r\n  \"term\": \"summer-24\",\r\n  \"instructor_id\": {{instructor2_id}}\r\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{app_url}}/courses/{{course1_id}}",
+                "host": ["{{app_url}}"],
+                "path": ["courses", "{{course1_id}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "2. update course 400 invalid instructor (1 pt)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "let points = 0;",
+                    "",
+                    "pm.test(\"400 status code (0.5 pts)\", function () {",
+                    "    pm.response.to.have.status(400);",
+                    "    points += 0.5",
+                    "});",
+                    "",
+                    "pm.test(\"400 error message (0.25 pts)\", function () {",
+                    "     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request body is invalid\");",
+                    "     points += 0.25",
+                    "});",
+                    "",
+                    "pm.test(\"The response content type is application.json (0.25 pts)\", function(){",
+                    "    pm.expect(pm.response.contentInfo().contentType).to.eq('application/json');",
+                    "    points += 0.25",
+                    "});",
+                    "",
+                    "console.log('******* Update a course Test 2 points = ' + points);",
+                    "let points_course_update = pm.environment.get('points_course_update') + points;",
+                    "console.log('******* Update a course Tests current points = ' + points_course_update);",
+                    "pm.environment.set(\"points_course_update\", points_course_update);"
+                  ],
+                  "type": "text/javascript",
+                  "packages": {}
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{admin1_jwt}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "PATCH",
+              "header": [],
+              "body": {
+                "mode": "raw",
+                "raw": "{\r\n  \"instructor_id\": {{student1_id}}\r\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{app_url}}/courses/{{course1_id}}",
+                "host": ["{{app_url}}"],
+                "path": ["courses", "{{course1_id}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "3. update course 401 (1 pt)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "let points = 0;",
+                    "",
+                    "pm.test(\"401 status code (0.5 pts)\", function () {",
+                    "    pm.response.to.have.status(401);",
+                    "    points += 0.5",
+                    "});",
+                    "",
+                    "pm.test(\"401 error message (0.5 pts)\", function () {",
+                    "     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Unauthorized\");",
+                    "     points += 0.5",
+                    "});",
+                    "",
+                    "console.log('******* Update a course Test 3 points = ' + points);",
+                    "let points_course_update = pm.environment.get('points_course_update') + points;",
+                    "console.log('******* Update a course Tests current points = ' + points_course_update);",
+                    "pm.environment.set(\"points_course_update\", points_course_update);"
+                  ],
+                  "type": "text/javascript",
+                  "packages": {}
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{invalid_jwt}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "PATCH",
+              "header": [],
+              "body": {
+                "mode": "raw",
+                "raw": "{\r\n  \"instructor_id\": {{instructor1_id}}\r\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{app_url}}/courses/{{course1_id}}",
+                "host": ["{{app_url}}"],
+                "path": ["courses", "{{course1_id}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "4. update course 403 (1 pt)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "let points = 0;",
+                    "",
+                    "pm.test(\"403 status code (0.5 pts)\", function () {",
+                    "    pm.response.to.have.status(403);",
+                    "    points += 0.5",
+                    "});",
+                    "",
+                    "pm.test(\"403 error message (0.5 pts)\", function () {",
+                    "     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"You don't have permission on this resource\");",
+                    "     points += 0.5",
+                    "});",
+                    "",
+                    "console.log('******* Update a course Test 4 points = ' + points);",
+                    "let points_course_update = pm.environment.get('points_course_update') + points;",
+                    "console.log('+++++++++++++++++++++++++++++++++++++++++');",
+                    "console.log('Update a course Tests Total points = ' + points_course_update);",
+                    "console.log('+++++++++++++++++++++++++++++++++++++++++');",
+                    "pm.environment.set(\"points_course_update\", points_course_update);"
+                  ],
+                  "type": "text/javascript",
+                  "packages": {}
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{instructor1_jwt}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "PATCH",
+              "header": [],
+              "body": {
+                "mode": "raw",
+                "raw": "{\r\n  \"instructor_id\": {{instructor1_id}}\r\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              },
+              "url": {
+                "raw": "{{app_url}}/courses/{{course1_id}}",
+                "host": ["{{app_url}}"],
+                "path": ["courses", "{{course1_id}}"]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "11. delete a course (4 pts)",
+        "item": [
+          {
+            "name": "1. delete course 204 (1 pt)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "let points = 0;",
+                    "",
+                    "pm.test(\"204 status code (1 pts)\", function () {",
+                    "    pm.response.to.have.status(204);",
+                    "    points += 1",
+                    "});",
+                    "",
+                    "console.log('******* Delete a course Test 1 points = ' + points);",
+                    "console.log('******* Delete a course Tests current points = ' + points);",
+                    "pm.environment.set(\"points_course_delete\", points);"
+                  ],
+                  "type": "text/javascript",
+                  "packages": {}
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{admin1_jwt}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "DELETE",
+              "header": [],
+              "url": {
+                "raw": "{{app_url}}/courses/{{course3_id}}",
+                "host": ["{{app_url}}"],
+                "path": ["courses", "{{course3_id}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "2. get deleted course 404 (1 pt)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "let points = 0;",
+                    "",
+                    "pm.test(\"status code is 404 (0.5 pts)\", function () {",
+                    "    pm.response.to.have.status(404);",
+                    "    points += 0.5",
+                    "});",
+                    "",
+                    "pm.test(\"content is valid (0.5 pts)\", function () {",
+                    "    const respJSON = pm.response.json();",
+                    "    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Not found\");",
+                    "    points += 0.5",
+                    "});",
+                    "",
+                    "console.log('******* Delete a course Test 2 points = ' + points);",
+                    "let points_course_delete = pm.environment.get('points_course_delete') + points;",
+                    "console.log('******* Delete a course Tests current points = ' + points_course_delete);",
+                    "pm.environment.set(\"points_course_delete\", points_course_delete);"
+                  ],
+                  "type": "text/javascript",
+                  "packages": {}
+                }
+              }
+            ],
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{app_url}}/courses/{{course3_id}}",
+                "host": ["{{app_url}}"],
+                "path": ["courses", "{{course3_id}}"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "3. delete course 401 (1 pt)",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "let points = 0;",
+                    "",
+                    "pm.test(\"401 status code (0.5 pts)\", function () {",
+                    "    pm.response.to.have.status(401);",
+                    "    points += 0.5",
+                    "});",
+                    "",
+                    "pm.test(\"401 error message (0.5 pts)\", function () {",
+                    "     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Unauthorized\");",
+                    "     points += 0.5",
+                    "});",
+                    "",
+                    "console.log('******* Delete a course Test 3 points = ' + points);",
+                    "let points_course_delete = pm.environment.get('points_course_delete') + points;",
+                    "console.log('******* Delete a course Tests current points = ' + points_course_delete);",
+                    "pm.environment.set(\"points_course_delete\", points_course_delete);"
+                  ],
+                  "type": "text/javascript",
+                  "packages": {}
+                }
+              }
+            ],
+            "request": {
+              "auth": {
+                "type": "bearer",
+                "bearer": [
+                  {
+                    "key": "token",
+                    "value": "{{invalid_jwt}}",
+                    "type": "string"
+                  }
+                ]
+              },
+              "method": "DELETE",
+              "header": [],
+              "url": {
+                "raw": "{{app_url}}/courses/{{course1_id}}",
+                "host": ["{{app_url}}"],
+                "path": ["courses", "{{
