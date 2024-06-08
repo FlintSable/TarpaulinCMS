@@ -1,0 +1,11 @@
+# Run Get Enrollment tests
+newman run get_enrollment_tests.json -e assignment6.postman_environment.json
+
+# Run Update Enrollment tests
+newman run update_enrollment_tests.json -e assignment6.postman_environment.json
+
+# Run Delete Course tests
+newman run delete_course_tests.json -e assignment6.postman_environment.json
+
+# Run Update Course tests
+newman run update_course_tests.json -e assignment6.postman_environment.json

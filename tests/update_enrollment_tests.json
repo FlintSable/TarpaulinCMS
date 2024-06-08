@@ -1,0 +1,173 @@
+{
+  "info": {
+    "_postman_id": "unique-id-update-enrollment",
+    "name": "Update Enrollment Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Update Enrollment",
+      "item": [
+        {
+          "name": "Enroll students with valid data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let points = 0;",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    points += 1;",
+                  "});",
+                  "pm.test(\"Response body is empty\", function () {",
+                  "    pm.expect(pm.response.text()).to.equal('');",
+                  "    points += 1;",
+                  "});",
+                  "console.log('Total points for Enroll students valid test = ' + points);",
+                  "pm.environment.set(\"points_update_enrollment\", points);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin1_jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"add\": [{{student1_id}}, {{student2_id}}], \"remove\": []}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{app_url}}/courses/{{course1_id}}/students",
+              "host": ["{{app_url}}"],
+              "path": ["courses", "{{course1_id}}", "students"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Disenroll students with valid data",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let points = 0;",
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    points += 1;",
+                  "});",
+                  "pm.test(\"Response body is empty\", function () {",
+                  "    pm.expect(pm.response.text()).to.equal('');",
+                  "    points += 1;",
+                  "});",
+                  "console.log('Total points for Disenroll students valid test = ' + points);",
+                  "pm.environment.set(\"points_update_enrollment_disenroll\", points);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin1_jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"add\": [], \"remove\": [{{student1_id}}, {{student2_id}}]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{app_url}}/courses/{{course1_id}}/students",
+              "host": ["{{app_url}}"],
+              "path": ["courses", "{{course1_id}}", "students"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update enrollment unauthorized",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let points = 0;",
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "    points += 1;",
+                  "});",
+                  "pm.test(\"Error message is valid\", function () {",
+                  "    pm.expect(pm.response.json().Error).to.eq(\"Unauthorized\");",
+                  "    points += 1;",
+                  "});",
+                  "console.log('Total points for Update enrollment unauthorized test = ' + points);",
+                  "pm.environment.set(\"points_update_enrollment_unauthorized\", points);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{invalid_jwt}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"add\": [{{student1_id}}, {{student2_id}}], \"remove\": []}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{app_url}}/courses/{{course1_id}}/students",
+              "host": ["{{app_url}}"],
+              "path": ["courses", "{{course1_id}}", "students"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
