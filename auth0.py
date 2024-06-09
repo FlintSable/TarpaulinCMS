@@ -11,11 +11,10 @@ from urllib.request import urlopen
 from config import CLIENT_ID, CLIENT_SECRET, DOMAIN
 from models import get_user, get_user_by_sub
 import json
-import logging
+# import logging
 from six.moves.urllib.request import urlopen
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+
 
 oauth = OAuth()
 ALGORITHMS = ["RS256"]
@@ -42,13 +41,13 @@ def auth0_login():
     content = request.get_json()
 
     if content is None or "username" not in content or "password" not in content:
-        logger.warning("Invalid request payload")
+        # logger.warning("Invalid request payload")
         return jsonify({"Error": "The request body is invalid"}), 400
 
     username = content["username"]
     password = content["password"]
 
-    logger.info(f"Login attempt for user: {username}")
+    # logger.info(f"Login attempt for user: {username}")
 
     body = {
         'grant_type': 'password',
@@ -65,13 +64,13 @@ def auth0_login():
         data = r.json()
         jwt_token = data.get('id_token')
         if jwt_token:
-            logger.info(f"Successful login for user: {username}")
+            # logger.info(f"Successful login for user: {username}")
             response = {
                 'token': jwt_token
             }
             return jsonify(response), 200
 
-    logger.warning(f"Failed login attempt for user: {username}")
+    # logger.warning(f"Failed login attempt for user: {username}")
     return jsonify({"Error": "Unauthorized"}), 401
 
 def extract_token_from_header():
@@ -140,7 +139,7 @@ def verify_jwt(token):
                 audience=CLIENT_ID,
                 issuer=f"https://{DOMAIN}/"
             )
-            logging.info(f"Decoded JWT payload: {payload}")
+            # logging.info(f"Decoded JWT payload: {payload}")
             return payload
         except jwt.ExpiredSignatureError:
             raise AuthError({"code": "token_expired", "description": "token is expired"}, 401)
