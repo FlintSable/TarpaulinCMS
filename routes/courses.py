@@ -1,4 +1,4 @@
-import logging
+# import logging
 from flask import Blueprint, request, jsonify, current_app
 from auth0 import jwt_required
 # from models import get_course, get_all_courses, create_course, get_user_by_id, get_user_by_sub, get_user_role, update_course, delete_course, get_enrolled_students, enroll_student, disenroll_student
@@ -7,7 +7,6 @@ from models import (
     get_user_by_sub, get_user_role, update_course, delete_course,
     get_enrolled_students, enroll_student, disenroll_student
 )
-logger = logging.getLogger(__name__)
 
 courses_bp = Blueprint('courses', __name__, url_prefix='/courses')
 
@@ -61,8 +60,10 @@ def get_course_details(course_id):
 def update_course_details(course_id):
     content = request.get_json()
     if not content:
-        current_app.logger.info("Request body is invalid")
-        return jsonify({"Error": "The request body is invalid"}), 400
+        course = get_course(course_id)
+        if not course:
+            return jsonify({"Error": "Not found"}), 404
+        return jsonify(course), 200
 
     if 'instructor_id' in content:
         instructor_role = get_user_role(content['instructor_id'])
@@ -102,7 +103,15 @@ def get_enrolled_students_route(course_id):
         return jsonify({"Error": "Not found"}), 404
 
     user_id = request.current_user['sub']
-    if request.current_user['role'] != 'admin' and course['instructor_id'] != user_id:
+    user = get_user_by_sub(user_id)
+    if not user:
+        return jsonify({"Error": "User not found"}), 404
+
+    user_role = user.get('role')
+    if not user_role:
+        return jsonify({"Error": "User role not found"}), 400
+
+    if user_role != 'admin' and course['instructor_id'] != user_id:
         return jsonify({"Error": "You don't have permission on this resource"}), 403
 
     students = get_enrolled_students(course_id)

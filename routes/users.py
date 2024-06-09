@@ -1,4 +1,4 @@
-import logging
+# import logging
 import io
 from flask import Blueprint, request, jsonify, send_file
 from auth0 import auth0_login, jwt_required
@@ -12,7 +12,7 @@ from config import CLIENT_ID, CLIENT_SECRET, CLOUD_BUCKET
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 @users_bp.route('/login', methods=['POST'])
@@ -117,5 +117,5 @@ def delete_avatar(user_id):
             return jsonify({"Error": "Not found"}), 404
         return '', 204
     except Exception as e:
-        logging.error(f"Error deleting avatar: {str(e)}")
+        # logging.error(f"Error deleting avatar: {str(e)}")
         return jsonify({"Error": "Internal Server Error"}), 500
